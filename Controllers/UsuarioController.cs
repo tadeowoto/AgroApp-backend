@@ -30,7 +30,7 @@ namespace api.agroapp.controllers
         }
 
 
-        [HttpPost("/usuarios/api/login")]
+        [HttpPost("/api/usuarios/login")]
         [AllowAnonymous]
         public IActionResult Login([FromForm] LoginData data)
         {
@@ -77,7 +77,7 @@ namespace api.agroapp.controllers
 
         }
 
-        [HttpGet("/usuarios/api/logged")]
+        [HttpGet("/api/usuarios/logged")]
         public IActionResult getUsuarioLoggeado()
         {
             try
