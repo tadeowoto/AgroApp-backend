@@ -1,8 +1,11 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace api.agroapp.model
 {
     public class TipoActividad
     {
+        [Key]
         public int id_tipo_actividad { get; set; }
         public string? nombre { get; set; }
         public string? descripcion { get; set; }

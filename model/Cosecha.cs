@@ -1,8 +1,11 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace api.agroapp.model
 {
     public class Cosecha
     {
+        [Key]
         public int id_cosecha { get; set; }
         public int id_lote { get; set; }
         public DateTime fecha_inicio { get; set; }

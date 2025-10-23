@@ -1,8 +1,11 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace api.agroapp.model
 {
     public class Recurso
     {
+        [Key]
         public int id_recurso { get; set; }
         public string? nombre { get; set; }
         public string? tipo { get; set; }

@@ -1,8 +1,11 @@
 
+using System.ComponentModel.DataAnnotations;
+
 namespace api.agroapp.model
 {
     public class Lote
     {
+        [Key]
         public int id_lote { get; set; }
         public int id_campo { get; set; }
         public string? nombre { get; set; }
