@@ -77,6 +77,25 @@ namespace api.agroapp.controllers
 
         }
 
+        [HttpGet("/usuarios/api/logged")]
+        public IActionResult getUsuarioLoggeado()
+        {
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized();
+                }
+                var user = _context.Usuarios.Find(int.Parse(userId));
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
 
 
