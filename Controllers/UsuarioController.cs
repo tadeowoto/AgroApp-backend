@@ -104,6 +104,32 @@ namespace api.agroapp.controllers
             }
         }
 
+        [HttpPut("/api/usuarios/CambiarPassword")]
+        public IActionResult CambiarPassword([FromForm] ChangePasswordData data)
+        {
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized("No tienes permiso para acceder a este recurso.");
+                }
+                var user = _context.Usuarios.Find(int.Parse(userId));
+                string hashedOldPassword = _hashPasswordService.HashPassword(data.currentPassword);
+                if (user.password != hashedOldPassword)
+                {
+                    return BadRequest("La contraseña actual es incorrecta.");
+                }
+                user.password = _hashPasswordService.HashPassword(data.newPassword);
+                _context.SaveChanges();
+                return Ok("Contraseña cambiada exitosamente.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
 
 
 
