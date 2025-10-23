@@ -88,7 +88,15 @@ namespace api.agroapp.controllers
                     return Unauthorized();
                 }
                 var user = _context.Usuarios.Find(int.Parse(userId));
-                return Ok(user);
+                var userWithoutPassword = new
+                {
+                    user.id_usuario,
+                    user.nombre,
+                    user.email,
+                    user.telefono,
+                    user.fecha_registro
+                };
+                return Ok(userWithoutPassword);
             }
             catch (Exception ex)
             {
