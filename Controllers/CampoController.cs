@@ -44,7 +44,7 @@ namespace api.agroapp.controllers
         }
 
         [HttpPost("/api/campos/agregar")]
-        public IActionResult AgregarCampo([FromBody] Campo campo)
+        public IActionResult AgregarCampo([FromBody] CampoData campoData)
         {
             try
             {
@@ -54,11 +54,21 @@ namespace api.agroapp.controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
-                campo.id_usuario = user.id_usuario;
-                Console.WriteLine(campo.nombre + " " + campo.ubicacion + " " + campo.extension_ha);
-                _context.Campo.Add(campo);
+                campoData.id_usuario = user.id_usuario;
+                Campo newCampo = new Campo
+                (
+                    campoData.id_campo,
+                    campoData.id_usuario,
+                    campoData.nombre,
+                    campoData.ubicacion,
+                    campoData.extension_ha,
+                    campoData.longitud,
+                    campoData.latitud
+                );
+
+                _context.Campo.Add(newCampo);
                 _context.SaveChanges();
-                return Ok(campo);
+                return Ok(newCampo);
 
             }
             catch (Exception ex)
@@ -67,5 +77,43 @@ namespace api.agroapp.controllers
             }
 
         }
+
+
+        [HttpPost("/api/campos/editar/{id_campo}")]
+        public IActionResult EditarCampo(int id_campo, [FromBody] CampoData campoData)
+        {
+
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+                var campoAEditar = _context.Campo.Find(id_campo);
+                if (campoAEditar.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para editar este campo.");
+                }
+
+                campoAEditar.nombre = campoData.nombre;
+                campoAEditar.ubicacion = campoData.ubicacion;
+                campoAEditar.extension_ha = campoData.extension_ha;
+                campoAEditar.longitud = campoData.longitud;
+                campoAEditar.latitud = campoData.latitud;
+
+                _context.SaveChanges();
+                return Ok(campoAEditar);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al editar el campo: " + ex.Message);
+            }
+
+        }
+
+
+
     }
 }
