@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using api.agroapp.model;
+using Microsoft.EntityFrameworkCore;
 
 
 
@@ -8,8 +9,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<DataContext>();
 
+
+builder.Services.AddDbContext<DataContext>();
+builder.Services.AddScoped<api_agroapp.lib.HashPasswordService>();
+builder.Services.AddDbContext<api.agroapp.model.DataContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
 
 
 builder.Services.AddAuthentication(options =>
