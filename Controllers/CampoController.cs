@@ -57,7 +57,6 @@ namespace api.agroapp.controllers
                 campoData.id_usuario = user.id_usuario;
                 Campo newCampo = new Campo
                 (
-                    campoData.id_campo,
                     campoData.id_usuario,
                     campoData.nombre,
                     campoData.ubicacion,
@@ -68,7 +67,7 @@ namespace api.agroapp.controllers
 
                 _context.Campo.Add(newCampo);
                 _context.SaveChanges();
-                return Ok(newCampo);
+                return Ok(new { message = "Campo agregado exitosamente." });
 
             }
             catch (Exception ex)
@@ -112,7 +111,6 @@ namespace api.agroapp.controllers
             }
 
         }
-
 
 
     }

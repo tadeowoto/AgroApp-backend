@@ -3,9 +3,6 @@ namespace api.agroapp.model
 {
     public class CampoData
     {
-
-
-        public int id_campo { get; set; }
         public int id_usuario { get; set; }
         public string nombre { get; set; }
         public string ubicacion { get; set; }
@@ -15,9 +12,8 @@ namespace api.agroapp.model
 
         public CampoData() { }
 
-        public CampoData(int id_campo, int id_usuario, string nombre, string ubicacion, decimal extension_ha, decimal? longitud = null, decimal? latitud = null)
+        public CampoData(int id_usuario, string nombre, string ubicacion, decimal extension_ha, decimal? longitud = null, decimal? latitud = null)
         {
-            this.id_campo = id_campo;
             this.id_usuario = id_usuario;
             this.nombre = nombre;
             this.ubicacion = ubicacion;
