@@ -122,16 +122,12 @@ namespace api.agroapp.controllers
                 }
                 user.password = _hashPasswordService.HashPassword(data.newPassword);
                 _context.SaveChanges();
-                return Ok("Contraseña cambiada exitosamente.");
+                return Ok(new { message = "Contraseña cambiada exitosamente." });
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
         }
-
-
-
-
     }
 }
