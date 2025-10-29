@@ -1,8 +1,10 @@
 
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace api.agroapp.model
 {
+    [Table("Lote")]
     public class Lote
     {
         [Key]
