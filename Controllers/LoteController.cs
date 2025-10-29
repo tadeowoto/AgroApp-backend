@@ -54,6 +54,47 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpPost("/api/lotes/editar/{id_lote}")]
+        public IActionResult EditarLote(int id_lote, [FromBody] Lote loteData)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var lote = _context.Lote.Find(id_lote);
+                if (lote == null)
+                {
+                    return NotFound("Lote no encontrado.");
+                }
+
+                var campo = _context.Campo.Find(lote.id_campo);
+                if (campo == null || campo.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para editar este lote.");
+                }
+
+                lote.nombre = loteData.nombre;
+                lote.superficie_ha = loteData.superficie_ha;
+                lote.cultivo = loteData.cultivo;
+                lote.fecha_creacion = loteData.fecha_creacion;
+
+                _context.Lote.Update(lote);
+                _context.SaveChanges();
+
+                return Ok(lote);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al editar el lote: " + ex.Message);
+            }
+
+        }
+
 
 
 
