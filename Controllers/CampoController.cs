@@ -43,6 +43,28 @@ namespace api.agroapp.controllers
             return Ok(campos);
         }
 
+        [HttpGet("/api/campos/{id_campo}")]
+        public IActionResult GetCampoById(int id_campo)
+        {
+            var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+            var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+            if (user == null || user.id_usuario == null)
+            {
+                return Forbid("No tienes permiso para acceder a este recurso.");
+            }
+            var campo = _context.Campo.Find(id_campo);
+            if (campo == null)
+            {
+                return NotFound("Campo no encontrado.");
+            }
+            if (campo.id_usuario != user.id_usuario)
+            {
+                return Forbid("No tienes permiso para acceder a este campo.");
+            }
+            return Ok(campo);
+        }
+
+
         [HttpPost("/api/campos/agregar")]
         public IActionResult AgregarCampo([FromBody] CampoData campoData)
         {
