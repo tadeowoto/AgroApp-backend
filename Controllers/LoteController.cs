@@ -95,6 +95,44 @@ namespace api.agroapp.Controllers
 
         }
 
+        [HttpPost]
+        [Route("/api/lotes/agregar")]
+        public IActionResult AgregarLote([FromBody] Lote loteData)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var campo = _context.Campo.Find(loteData.id_campo);
+                if (campo == null || campo.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para agregar un lote a este campo.");
+                }
+
+                Lote newLote = new Lote
+                (
+                    loteData.id_campo,
+                    loteData.nombre,
+                    loteData.superficie_ha,
+                    loteData.cultivo
+                );
+
+                _context.Lote.Add(newLote);
+                _context.SaveChanges();
+
+                return Ok(new { message = "Lote agregado exitosamente." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al agregar el lote: " + ex.Message);
+            }
+        }
+
 
 
 
