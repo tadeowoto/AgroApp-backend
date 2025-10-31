@@ -21,9 +21,9 @@ namespace api_agroapp.model
 
         public Actividad() { }
 
-        public Actividad(int IdActividad, int Id_lote, int? id_insumo, int? id_recurso, int id_tipo_actividad, string descripcion, DateTime fecha_inicio, DateTime? fecha_fin, decimal? cantidad_insumo, decimal? costo)
+        public Actividad(int Id_lote, int? id_insumo, int? id_recurso, int id_tipo_actividad, string descripcion, DateTime fecha_inicio, DateTime? fecha_fin, decimal? cantidad_insumo, decimal? costo)
         {
-            this.IdActividad = IdActividad;
+
             this.Id_lote = Id_lote;
             this.id_insumo = id_insumo;
             this.id_recurso = id_recurso;

@@ -16,6 +16,8 @@ namespace api.agroapp.model
         public DbSet<Cosecha> Cosecha { get; set; }
         public DbSet<TipoActividad> TipoActividad { get; set; }
 
+        public DbSet<Actividad> Actividad { get; set; }
+
     }
 
 }
