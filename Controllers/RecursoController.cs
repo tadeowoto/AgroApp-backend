@@ -50,6 +50,32 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpGet("/api/recursos")]
+        public IActionResult GetRecursosDelUsuarioLogeado()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                //verifico que el usuario exista 
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var recursos = _context.Recurso
+                    .Where(r => r.id_usuario == user.id_usuario)
+                    .ToList();
+
+                return Ok(recursos);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener los recursos: " + ex.Message);
+            }
+
+        }
+
 
     }
 }

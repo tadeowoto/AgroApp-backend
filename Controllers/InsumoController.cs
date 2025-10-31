@@ -53,6 +53,32 @@ namespace api.agroapp.Controllers
 
         }
 
+        [HttpGet("/api/insumos")]
+        public IActionResult GetInsumos()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                //verifico que el usuario exista 
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var insumos = _context.Insumo.Where(i => i.id_usuario == user.id_usuario).ToList();
+                if (insumos == null || insumos.Count == 0)
+                {
+                    return NotFound("No se encontraron insumos para el usuario especificado.");
+                }
+                return Ok(insumos);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener los insumos: " + ex.Message);
+            }
+        }
+
 
     }
 }

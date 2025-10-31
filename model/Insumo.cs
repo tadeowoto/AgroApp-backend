@@ -9,6 +9,7 @@ namespace api_agroapp.model
 
         [Key]
         public int id_insumo { get; set; }
+        public int id_usuario { get; set; }
         public string? nombre { get; set; }
         public string? tipo { get; set; }
         public string? unidad { get; set; }
@@ -17,9 +18,10 @@ namespace api_agroapp.model
 
         public Insumo() { }
 
-        public Insumo(int id_insumo, string? nombre, string? tipo, string? unidad, decimal? stock_actual, DateTime? fecha_vencimiento)
+        public Insumo(int id_insumo, int id_usuario, string? nombre, string? tipo, string? unidad, decimal? stock_actual, DateTime? fecha_vencimiento)
         {
             this.id_insumo = id_insumo;
+            this.id_usuario = id_usuario;
             this.nombre = nombre;
             this.tipo = tipo;
             this.unidad = unidad;

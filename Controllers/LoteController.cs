@@ -159,6 +159,33 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpGet("/api/lotes")]
+        public IActionResult getLotesDelUsuarioLogeado()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var lotes = _context.Lote
+                    .Where(l => _context.Campo
+                        .Where(c => c.id_usuario == user.id_usuario)
+                        .Select(c => c.id_campo)
+                        .Contains(l.id_campo))
+                    .ToList();
+
+                return Ok(lotes);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener los lotes: " + ex.Message);
+            }
+        }
+
 
 
 
