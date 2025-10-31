@@ -49,7 +49,7 @@ namespace api_agroapp.Controllers
             }
         }
 
-        [HttpGet("api/actividades/lotes")]
+        [HttpGet("api/actividades/usuario")]
         public IActionResult getActividadesDeUsuario()
         {
             try
