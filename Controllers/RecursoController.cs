@@ -76,6 +76,71 @@ namespace api.agroapp.Controllers
 
         }
 
+        [HttpPost("/api/recursos/agregar")]
+        public IActionResult AgregarRecurso([FromBody] Recurso nuevoRecurso)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                nuevoRecurso.id_usuario = user.id_usuario;
+
+                _context.Recurso.Add(nuevoRecurso);
+                _context.SaveChanges();
+
+                return Ok(new { message = "Recurso agregado exitosamente." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al agregar el recurso: " + ex.Message);
+            }
+        }
+
+        [HttpPut("/api/recursos/actualizar/{id_recurso}")]
+        public IActionResult ActualizarRecurso(int id_recurso, [FromBody] Recurso recursoActualizado)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var recursoExistente = _context.Recurso.Find(id_recurso);
+                if (recursoExistente == null)
+                {
+                    return NotFound("Recurso no encontrado.");
+                }
+
+                if (recursoExistente.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para actualizar este recurso.");
+                }
+
+                recursoExistente.nombre = recursoActualizado.nombre;
+                recursoExistente.tipo = recursoActualizado.tipo;
+                recursoExistente.marca = recursoActualizado.marca;
+                recursoExistente.modelo = recursoActualizado.modelo;
+                recursoExistente.estado = recursoActualizado.estado;
+
+                _context.Recurso.Update(recursoExistente);
+                _context.SaveChanges();
+
+                return Ok(new { message = "Recurso actualizado exitosamente." });
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al actualizar el recurso: " + ex.Message);
+            }
+        }
+
 
     }
 }
