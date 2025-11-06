@@ -1,6 +1,7 @@
 
 using api.agroapp.model;
 using api_agroapp.lib;
+using api_agroapp.model;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -76,6 +77,70 @@ namespace api.agroapp.Controllers
             catch (System.Exception ex)
             {
                 return BadRequest("Error al obtener los insumos: " + ex.Message);
+            }
+        }
+
+        [HttpPut("/api/insumos/actualizar/{id_insumo}")]
+        public IActionResult editarInsumo(int id_insumo, [FromBody] Insumo insumoActualizado)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var insumoExistente = _context.Insumo.Find(id_insumo);
+                if (insumoExistente == null)
+                {
+                    return NotFound("Insumo no encontrado.");
+                }
+
+                if (insumoExistente.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para editar este insumo.");
+                }
+                insumoExistente.nombre = insumoActualizado.nombre;
+                insumoExistente.tipo = insumoActualizado.tipo;
+                insumoExistente.unidad = insumoActualizado.unidad;
+                insumoExistente.stock_actual = insumoActualizado.stock_actual;
+                insumoExistente.fecha_vencimiento = insumoActualizado.fecha_vencimiento;
+
+                _context.SaveChanges();
+
+                return Ok(new { message = "Insumo actualizado correctamente." });
+
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al actualizar el insumo: " + ex.Message);
+            }
+        }
+
+        [HttpPost("/api/insumos/crear")]
+        public IActionResult AgregarInsumo([FromBody] Insumo nuevoInsumo)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                nuevoInsumo.id_usuario = user.id_usuario;
+
+                _context.Insumo.Add(nuevoInsumo);
+                _context.SaveChanges();
+
+                return Ok(nuevoInsumo);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al agregar el insumo: " + ex.Message);
             }
         }
 
