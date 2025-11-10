@@ -186,9 +186,32 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpGet("/api/lotes/cantidad")]
+        public IActionResult GetCantidadLotes()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+                // subconsulta para contar los lotes que pertenecen a los campos del usuario
+                var cantidadLotes = _context.Lote
+                    .Count(l => _context.Campo
+                        .Where(c => c.id_usuario == user.id_usuario)
+                        .Select(c => c.id_campo)
+                        .Contains(l.id_campo));
 
+                return Ok(cantidadLotes);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener la cantidad de lotes: " + ex.Message);
+            }
 
-
+        }
 
     }
 

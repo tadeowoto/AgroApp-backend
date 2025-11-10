@@ -144,6 +144,96 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpGet("/api/insumos/cantidad")]
+        public IActionResult GetCantidadInsumos()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var cantidadInsumos = _context.Insumo.Count(i => i.id_usuario == user.id_usuario);
+
+                return Ok(cantidadInsumos);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener la cantidad de insumos: " + ex.Message);
+            }
+        }
+
+        [HttpPut("api/insumos/restarInsumo/{id_insumo}")]
+        public IActionResult RestarInsumo(int id_insumo, [FromBody] decimal cantidadARestar)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var insumoExistente = _context.Insumo.Find(id_insumo);
+                if (insumoExistente == null)
+                {
+                    return NotFound("Insumo no encontrado.");
+                }
+
+                if (insumoExistente.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para modificar este insumo.");
+                }
+
+                insumoExistente.stock_actual -= cantidadARestar;
+                _context.SaveChanges();
+
+                return Ok(new { message = "Stock de insumo actualizado correctamente.", stock_actual = insumoExistente.stock_actual });
+
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al restar el insumo: " + ex.Message);
+            }
+        }
+
+        [HttpGet("/api/insumos/stockActual/{id_insumo}")]
+        public IActionResult GetStockActual(int id_insumo, [FromQuery] decimal cantidadARestar)
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+                var insumoExistente = _context.Insumo.Find(id_insumo);
+                if (insumoExistente == null)
+                {
+                    return NotFound("Insumo no encontrado.");
+                }
+                if (insumoExistente.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para ver este insumo.");
+                }
+                if (insumoExistente.stock_actual < cantidadARestar)
+                {
+                    return StatusCode(409, new { message = "No hay suficiente stock disponible" });
+                }
+                return Ok(insumoExistente.stock_actual);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener el stock actual: " + ex.Message);
+            }
+
+
+        }
 
     }
 }

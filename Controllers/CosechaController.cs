@@ -102,6 +102,32 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpGet("/api/cosechas/proximas")]
+        public IActionResult GetCosechasProximas()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var today = System.DateTime.Today;
+
+                var cosechasProximas = _context.Cosecha
+                    .Where(c => c.fecha_fin >= today)
+                    .ToList();
+
+                return Ok(cosechasProximas);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener las cosechas próximas: " + ex.Message);
+            }
+        }
+
     }
 
 }

@@ -141,6 +141,28 @@ namespace api.agroapp.Controllers
             }
         }
 
+        [HttpGet("/api/recursos/cantidad")]
+        public IActionResult GetCantidadRecursosDelUsuarioLogeado()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var cantidadRecursos = _context.Recurso.Count(r => r.id_usuario == user.id_usuario);
+
+                return Ok(cantidadRecursos);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener la cantidad de recursos: " + ex.Message);
+            }
+        }
+
 
     }
 }

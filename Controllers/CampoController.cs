@@ -134,6 +134,29 @@ namespace api.agroapp.controllers
 
         }
 
+        [HttpGet("/api/campos/cantidad")]
+        public IActionResult GetCantidadCampos()
+        {
+            try
+            {
+                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
+
+                var cantidadCampos = _context.Campo
+                    .Count(c => c.id_usuario == user.id_usuario);
+
+                return Ok(cantidadCampos);
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest("Error al obtener la cantidad de campos: " + ex.Message);
+            }
+        }
+
 
     }
 }
