@@ -39,7 +39,7 @@ namespace api.agroapp.Controllers
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
 
-                var insumo = _context.Insumo.Find(id_insumo);
+                var insumo = _context.Insumo.FirstOrDefault(i => i.id_insumo == id_insumo && i.id_usuario == user.id_usuario);
                 if (insumo == null)
                 {
                     return NotFound("Insumo no encontrado.");

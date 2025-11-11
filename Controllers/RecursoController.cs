@@ -36,7 +36,7 @@ namespace api.agroapp.Controllers
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
 
-                var recurso = _context.Recurso.Find(id_recurso);
+                var recurso = _context.Recurso.FirstOrDefault(r => r.id_recurso == id_recurso && r.id_usuario == user.id_usuario);
                 if (recurso == null)
                 {
                     return NotFound("Recurso no encontrado.");

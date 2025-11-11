@@ -39,6 +39,13 @@ namespace api_agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
+                var lote = _context.Lote.Find(actividad.Id_lote);
+                if (lote == null) return NotFound("Lote no encontrado.");
+                var campo = _context.Campo.Find(lote.id_campo);
+                if (campo == null || campo.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para agregar actividades a este lote.");
+                }
                 _context.Actividad.Add(actividad);
                 _context.SaveChanges();
                 return Ok(new { message = "Actividad agregada exitosamente." });
@@ -79,7 +86,7 @@ namespace api_agroapp.Controllers
                     .ToList();
 
                 //lo bueno de esto es que se traduce a una sola consulta SQL eficiente, y no tengo que llamar a traer todo los campos, lotes y actividades a memoria para filtrarlos en C#.
-
+                //preguntar a mariano
                 return Ok(actividades);
             }
             catch (FormatException)
@@ -104,6 +111,15 @@ namespace api_agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
+
+                var lote = _context.Lote.Find(id_lote);
+                if (lote == null) return NotFound("Lote no encontrado.");
+                var campo = _context.Campo.Find(lote.id_campo);
+                if (campo == null || campo.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para ver este lote.");
+                }
+
                 var actividades = _context.Actividad.Where(a => a.Id_lote == id_lote).ToList();
                 return Ok(actividades);
             }
@@ -124,7 +140,13 @@ namespace api_agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
-                var actividad = _context.Actividad.Find(id_actividad);
+                var actividad = _context.Actividad
+                    .Where(a => a.IdActividad == id_actividad)
+                    .Join(_context.Lote, a => a.Id_lote, l => l.id_lote, (a, l) => new { a, l })
+                    .Join(_context.Campo, j => j.l.id_campo, c => c.id_campo, (j, c) => new { j.a, c.id_usuario })
+                    .Where(x => x.id_usuario == user.id_usuario)
+                    .Select(x => x.a)
+                    .FirstOrDefault();
                 if (actividad == null)
                 {
                     return NotFound(new { message = "Actividad no encontrada." });
@@ -148,8 +170,13 @@ namespace api_agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
-                var actividad = _context.Actividad.Find(id_actividad);
-                if (actividad == null)
+                var actividad = _context.Actividad
+                    .Where(a => a.IdActividad == id_actividad)
+                    .Join(_context.Lote, a => a.Id_lote, l => l.id_lote, (a, l) => new { a, l })
+                    .Join(_context.Campo, j => j.l.id_campo, c => c.id_campo, (j, c) => new { j.a, c.id_usuario })
+                    .Where(x => x.id_usuario == user.id_usuario)
+                    .Select(x => x.a)
+                    .FirstOrDefault(); if (actividad == null)
                 {
                     return NotFound(new { message = "Actividad no encontrada." });
                 }
@@ -168,6 +195,6 @@ namespace api_agroapp.Controllers
 
         }
 
-        
+
     }
 }

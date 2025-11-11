@@ -3,6 +3,7 @@ using api.agroapp.model;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace api.agroapp.Controllers
@@ -30,13 +31,15 @@ namespace api.agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
-
-                var cosechas = _context.Cosecha.Where(c => c.id_lote == id_lote).ToList();
-                if (cosechas == null || cosechas.Count == 0)
+                var lote = _context.Lote.Find(id_lote);
+                if (lote == null) return NotFound("Lote no encontrado.");
+                var campo = _context.Campo.Find(lote.id_campo);
+                if (campo == null || campo.id_usuario != user.id_usuario)
                 {
-                    return NotFound("No se encontraron cosechas para el lote especificado.");
+                    return Forbid("No tienes permiso para acceder a este recurso.");
                 }
 
+                var cosechas = _context.Cosecha.Where(c => c.id_lote == id_lote).ToList();
                 return Ok(cosechas);
             }
             catch (System.Exception ex)
@@ -58,7 +61,26 @@ namespace api.agroapp.Controllers
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
 
-                _context.Cosecha.Add(nuevaCosecha);
+                var lote = _context.Lote.Find(nuevaCosecha.id_lote);
+                if (lote == null) return NotFound("El lote especificado no existe.");
+
+                var campo = _context.Campo.Find(lote.id_campo);
+
+                if (campo == null || campo.id_usuario != user.id_usuario)
+                {
+                    return Forbid("No tienes permiso para agregar una cosecha a este lote.");
+                }
+
+                Cosecha cosecha = new Cosecha
+                {
+                    id_lote = nuevaCosecha.id_lote,
+                    fecha_inicio = nuevaCosecha.fecha_inicio,
+                    fecha_fin = nuevaCosecha.fecha_fin,
+                    rendimiento = nuevaCosecha.rendimiento,
+                    observaciones = nuevaCosecha.observaciones
+                };
+
+                _context.Cosecha.Add(cosecha);
                 _context.SaveChanges();
 
                 return Ok(new { message = "Cosecha agregada exitosamente." });
@@ -81,12 +103,19 @@ namespace api.agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
-
                 var cosecha = _context.Cosecha.Find(id_cosecha);
-                if (cosecha == null)
+                if (cosecha == null) return NotFound("Cosecha no encontrada.");
+
+                var lote = _context.Lote.Find(cosecha.id_lote);
+                if (lote == null) return NotFound("Lote asociado no encontrado.");
+
+
+                var campo = _context.Campo.Find(lote.id_campo);
+                if (campo == null || campo.id_usuario != user.id_usuario)
                 {
-                    return NotFound("Cosecha no encontrada.");
+                    return Forbid("No tienes permiso para actualizar esta cosecha.");
                 }
+
                 cosecha.fecha_inicio = updatedCosecha.fecha_inicio;
                 cosecha.fecha_fin = updatedCosecha.fecha_fin;
                 cosecha.rendimiento = updatedCosecha.rendimiento;
@@ -115,9 +144,17 @@ namespace api.agroapp.Controllers
                 }
 
                 var today = System.DateTime.Today;
-
                 var cosechasProximas = _context.Cosecha
-                    .Where(c => c.fecha_fin >= today)
+                    .Join(_context.Lote,
+                        cosecha => cosecha.id_lote,
+                        lote => lote.id_lote,
+                        (cosecha, lote) => new { Cosecha = cosecha, Lote = lote })
+                    .Join(_context.Campo,
+                        joined => joined.Lote.id_campo,
+                        campo => campo.id_campo,
+                        (joined, campo) => new { joined.Cosecha, joined.Lote, Campo = campo })
+                    .Where(x => x.Campo.id_usuario == user.id_usuario && x.Cosecha.fecha_fin >= today)
+                    .Select(x => x.Cosecha)
                     .ToList();
 
                 return Ok(cosechasProximas);

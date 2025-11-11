@@ -9,13 +9,13 @@ namespace api.agroapp.Controllers
 {
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    public class TipoActividad : ControllerBase
+    public class TipoActividadController : ControllerBase
     {
         private readonly DataContext _context;
         private readonly IConfiguration _config;
 
 
-        public TipoActividad(DataContext context, IConfiguration config)
+        public TipoActividadController(DataContext context, IConfiguration config)
         {
             _context = context;
             _config = config;
@@ -26,13 +26,6 @@ namespace api.agroapp.Controllers
         {
             try
             {
-                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
-                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
-                if (user == null || user.id_usuario == null)
-                //verifico que el usuario exista 
-                {
-                    return Forbid("No tienes permiso para acceder a este recurso.");
-                }
 
                 var tipoActividad = _context.TipoActividad.Find(id_tipo_actividad);
                 if (tipoActividad == null)
@@ -52,13 +45,7 @@ namespace api.agroapp.Controllers
         {
             try
             {
-                var idUsuarioClaim = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
-                var user = _context.Usuarios.Find(int.Parse(idUsuarioClaim));
-                if (user == null || user.id_usuario == null)
-                //verifico que el usuario exista 
-                {
-                    return Forbid("No tienes permiso para acceder a este recurso.");
-                }
+                //no valido porque los tipo de actividades son publicos
                 var tipoActividades = _context.TipoActividad.ToList();
                 return Ok(tipoActividades);
             }

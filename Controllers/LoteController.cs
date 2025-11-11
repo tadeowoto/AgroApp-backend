@@ -146,7 +146,15 @@ namespace api.agroapp.Controllers
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
 
-                var lote = _context.Lote.Find(id_lote);
+                var lote = _context.Lote
+            .Where(l => l.id_lote == id_lote)
+            .Join(_context.Campo,
+                lote => lote.id_campo,
+                campo => campo.id_campo,
+                (lote, campo) => new { Lote = lote, Campo = campo })
+            .Where(joined => joined.Campo.id_usuario == user.id_usuario)
+            .Select(joined => joined.Lote)
+            .FirstOrDefault();
                 if (lote == null)
                 {
                     return NotFound("Lote no encontrado.");
@@ -197,7 +205,7 @@ namespace api.agroapp.Controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
-                // subconsulta para contar los lotes que pertenecen a los campos del usuario
+
                 var cantidadLotes = _context.Lote
                     .Count(l => _context.Campo
                         .Where(c => c.id_usuario == user.id_usuario)
