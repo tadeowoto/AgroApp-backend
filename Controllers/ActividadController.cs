@@ -167,5 +167,7 @@ namespace api_agroapp.Controllers
             }
 
         }
+
+        
     }
 }

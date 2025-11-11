@@ -21,6 +21,7 @@ namespace api.agroapp.model
             this.nombre = nombre;
             this.superficie_ha = superficie_ha;
             this.cultivo = cultivo;
+            this.fecha_creacion = DateTime.Now;
         }
 
 

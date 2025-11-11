@@ -35,6 +35,7 @@ namespace api.agroapp.controllers
             {
                 return Forbid("No tienes permiso para acceder a este recurso.");
             }
+
             var campos = _context.Campo.Where(c => c.id_usuario == user.id_usuario).ToList();
             if (campos == null || campos.Count == 0)
             {
@@ -145,6 +146,10 @@ namespace api.agroapp.controllers
                 {
                     return Forbid("No tienes permiso para acceder a este recurso.");
                 }
+                if (user == null || user.id_usuario == null)
+                {
+                    return Forbid("No tienes permiso para acceder a este recurso.");
+                }
 
                 var cantidadCampos = _context.Campo
                     .Count(c => c.id_usuario == user.id_usuario);
@@ -156,7 +161,5 @@ namespace api.agroapp.controllers
                 return BadRequest("Error al obtener la cantidad de campos: " + ex.Message);
             }
         }
-
-
     }
 }

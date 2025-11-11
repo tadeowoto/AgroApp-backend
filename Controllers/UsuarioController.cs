@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-
+using api.agroapp.model.dto;
 
 namespace api.agroapp.controllers
 {
@@ -128,6 +128,31 @@ namespace api.agroapp.controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPut("/api/usuarios/ActualizarPerfil")]
+        public IActionResult ActualizarPerfil([FromBody] UpdateProfileData data)
+        {
+
+            try
+            {
+                var userId = User.Claims.FirstOrDefault(c => c.Type == "Id")?.Value;
+                if (userId == null)
+                {
+                    return Unauthorized("No tienes permiso para acceder a este recurso.");
+                }
+                var user = _context.Usuarios.Find(int.Parse(userId));
+                user.nombre = data.nombre;
+                user.email = data.email;
+                user.telefono = data.telefono;
+                _context.SaveChanges();
+                return Ok(new { message = "Perfil actualizado exitosamente." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
         }
     }
 }
